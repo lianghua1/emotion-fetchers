@@ -1,0 +1,8 @@
+# 情绪面板 · 社交抓取（无 Playwright）
+# 终极混合：primp(TLS/JA4伪装) + selectolax(快解析) + 住宅代理池 + 验证码求解钩子
+primp>=1.0.0
+selectolax>=0.3.27
+orjson>=3.10.0
+deep-translator>=1.11.4
+cryptography>=42.0.0
+websocket-client>=1.8.0

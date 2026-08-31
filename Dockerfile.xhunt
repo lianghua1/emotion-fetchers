@@ -1,0 +1,25 @@
+# Cloud-friendly XHunt rank worker (no Chrome/Playwright)
+FROM python:3.12-slim
+
+WORKDIR /app
+COPY fetch/requirements.txt /app/fetch/requirements.txt
+RUN pip install --no-cache-dir -r /app/fetch/requirements.txt
+
+COPY fetch /app/fetch
+ENV PYTHONUNBUFFERED=1 \
+    FETCH_IMPERSONATE=chrome_146 \
+    XHUNT_TWITTER_ID=999999999 \
+    XHUNT_USER_ID=xhunt-cloud \
+    XHUNT_BATCH_SIZE=40 \
+    XHUNT_RPS=1.5 \
+    XHUNT_WORKERS=4 \
+    XHUNT_CACHE_DIR=/data/xhunt_cache \
+    XHUNT_CACHE_TTL=3600
+
+VOLUME ["/data/xhunt_cache"]
+WORKDIR /app
+# Example:
+#   docker run --rm -v $PWD/handles.txt:/handles.txt -v xhunt_cache:/data/xhunt_cache IMAGE \
+#     python -m fetch xhunt --file /handles.txt --live --workers 8 --pretty
+ENTRYPOINT ["python", "-m", "fetch"]
+CMD ["xhunt", "--help"]

@@ -1,0 +1,35 @@
+{
+  "name": "follower-standard",
+  "version": "0.1.0",
+  "description": "An open, transparent scorer for X/Twitter follower authenticity — the reference implementation of the TweetBoost Follower Standard. Pure functions, no network, no secrets.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "prepublishOnly": "npm run test && npm run build"
+  },
+  "keywords": [
+    "twitter", "x", "followers", "bot-detection", "fake-followers",
+    "follower-quality", "audit", "authenticity", "scorer", "social-media"
+  ],
+  "author": "TweetBoost (https://tweetboost.ai)",
+  "license": "MIT",
+  "homepage": "https://tweetboost.ai/standard",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Petkopetko/follower-standard.git"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
