@@ -36,4 +36,4 @@ This repository contains source code only. Do not commit cookies, API keys, acco
 
 ## License
 
-The included `vendor/follower-standard` component retains its upstream license. Other files are provided under the MIT License.
+The included `vendor/follower-standard` component retains its upstream license. Other files are provided under the MIT License; see `LICENSE`.
