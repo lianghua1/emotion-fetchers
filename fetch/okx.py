@@ -19,6 +19,16 @@ TOPIC_DETAIL_URL = "https://www.okx.com/priapi/v5/rubik/content/topic/detail/1"
 TOPIC_LIST_URL = "https://www.okx.com/priapi/v5/rubik/content/topic/list/1"
 
 
+def _response_object(data: Any) -> dict[str, Any]:
+    if isinstance(data, dict) and "_raw" in data:
+        status = data.get("_status")
+        raw = str(data.get("_raw") or "").lower()
+        if "cloudflare" in raw or "just a moment" in raw or "challenge" in raw:
+            raise RuntimeError("OKX Orbit endpoint was blocked by Cloudflare; change the egress or retry later.")
+        raise RuntimeError(f"OKX Orbit endpoint returned non-JSON data (HTTP {status or 'unknown'}).")
+    return data if isinstance(data, dict) else {}
+
+
 def _headers(site_info: str | None = None) -> dict[str, str]:
     return {
         "accept": "application/json",
@@ -136,11 +146,11 @@ def search_by_coin(
     for _ in range(pages):
         if _past_deadline(deadline):
             break
-        data = c.get_json(
+        data = _response_object(c.get_json(
             SEARCH_URL,
             headers=_headers(site_info),
             params={"coinName": tag, "size": page_size, "cursor": cur},
-        )
+        ))
         payload = (data or {}).get("data") or {}
         rows = (
             payload.get("contentDataList")
@@ -189,11 +199,11 @@ def search_by_coin_chunk(
     exhausted = False
 
     for _ in range(max(1, max_scan)):
-        data = c.get_json(
+        data = _response_object(c.get_json(
             SEARCH_URL,
             headers=_headers(site_info),
             params={"coinName": tag, "size": page_size, "cursor": cur},
-        )
+        ))
         payload = (data or {}).get("data") or {}
         rows = (
             payload.get("contentDataList")
@@ -238,11 +248,11 @@ def topic_detail(
     """type=0 latest, type=1 hot — server-side."""
     c = client or default_client()
     typ = 1 if mode == "hot" else 0
-    data = c.get_json(
+    data = _response_object(c.get_json(
         TOPIC_DETAIL_URL,
         headers=_headers(site_info),
         params={"id": topic_id, "group": group, "size": size, "type": typ},
-    )
+    ))
     payload = (data or {}).get("data") or {}
     rows = (
         payload.get("contentDataList")
@@ -267,11 +277,11 @@ def list_topics(
     site_info: str | None = None,
 ) -> list[dict[str, Any]]:
     c = client or default_client()
-    data = c.get_json(
+    data = _response_object(c.get_json(
         TOPIC_LIST_URL,
         headers=_headers(site_info),
         params={"size": size},
-    )
+    ))
     payload = (data or {}).get("data") or {}
     rows = payload.get("dataList") or payload.get("list") or payload.get("contentDataList") or []
     return [r for r in rows if isinstance(r, dict)]
