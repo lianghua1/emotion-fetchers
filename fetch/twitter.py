@@ -24,10 +24,11 @@ from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any
 
+from .http_client import detect_local_proxy
 from .lang import LangFilter, filter_posts_by_lang
 from .models import SocialPost, SortMode, dedupe_posts, sort_posts
 
-DEFAULT_SCRAPER_ROOT = Path("twitter-scraper")
+DEFAULT_SCRAPER_ROOT = Path(__file__).resolve().parents[1] / "twitter-scraper"
 ACCOUNTS_FILE = Path(__file__).resolve().parent / ".twitter_accounts.json"
 _CURSOR_SEP = "\x1f"
 _COOKIE_KEYS = (
@@ -62,6 +63,11 @@ def _ensure_scraper_on_path() -> Path:
     root = scraper_root()
     if not root.is_dir():
         raise FileNotFoundError(f"twitter-scraper not found: {root}")
+    if not any(os.getenv(key, "").strip() for key in ("HTTPS_PROXY", "HTTP_PROXY")):
+        proxy = detect_local_proxy()
+        if proxy:
+            os.environ.setdefault("HTTPS_PROXY", proxy)
+            os.environ.setdefault("HTTP_PROXY", proxy)
     p = str(root.resolve())
     if p not in sys.path:
         sys.path.insert(0, p)
